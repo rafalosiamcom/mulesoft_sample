@@ -1,0 +1,134 @@
+#%RAML 1.0
+title: User Management API
+version: v1
+baseUri: https://api.example.com/{version}
+protocols: [ HTTPS ]
+mediaType: application/json
+
+securitySchemes:
+  oauth_2_0:
+    description: OAuth 2.0 authentication.
+    type: OAuth 2.0
+    describedBy:
+      headers:
+        Authorization:
+          description: |
+            Used to send a valid OAuth 2 access token.
+          type: string
+      responses:
+        401:
+          description: |
+            Unauthorized. Invalid or missing OAuth token.
+    settings:
+      authorizationUri: https://auth.example.com/oauth/authorize
+      accessTokenUri: https://auth.example.com/oauth/token
+      authorizationGrants: [ authorization_code, client_credentials ]
+
+/users:
+  description: Manage users in the system.
+  
+  get:
+    description: Retrieve a list of all users.
+    securedBy: [ oauth_2_0 ]
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              [
+                {
+                  "id": 1,
+                  "name": "John Doe",
+                  "email": "john.doe@example.com"
+                },
+                {
+                  "id": 2,
+                  "name": "Jane Doe",
+                  "email": "jane.doe@example.com"
+                }
+              ]
+  
+  post:
+    description: Create a new user.
+    securedBy: [ oauth_2_0 ]
+    body:
+      application/json:
+        type: User
+        example: |
+          {
+            "name": "John Doe",
+            "email": "john.doe@example.com"
+          }
+    responses:
+      201:
+        body:
+          application/json:
+            example: |
+              {
+                "id": 1,
+                "name": "John Doe",
+                "email": "john.doe@example.com"
+              }
+
+/users/{userId}:
+  description: Retrieve, update, or delete a specific user by ID.
+  uriParameters:
+    userId:
+      description: The ID of the user.
+      type: integer
+      required: true
+  get:
+    description: Get details of a specific user.
+    securedBy: [ oauth_2_0 ]
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              {
+                "id": 1,
+                "name": "John Doe",
+                "email": "john.doe@example.com"
+              }
+
+  put:
+    description: Update details of a specific user.
+    securedBy: [ oauth_2_0 ]
+    body:
+      application/json:
+        type: User
+        example: |
+          {
+            "name": "John Doe",
+            "email": "john.doe@example.com"
+          }
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              {
+                "id": 1,
+                "name": "John Doe",
+                "email": "john.doe@example.com"
+              }
+
+  delete:
+    description: Delete a specific user.
+    securedBy: [ oauth_2_0 ]
+    responses:
+      204:
+        description: User deleted successfully.
+
+types:
+  User:
+    type: object
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+        required: true
+      email:
+        type: string
+        required: true
